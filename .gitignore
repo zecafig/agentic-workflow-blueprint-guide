@@ -3,6 +3,8 @@ __pycache__/
 python3/__pycache__/
 .coverage
 python3/.coverage
+coverage.xml
+python3/coverage.xml
 .pytest_cache/
 python3/.pytest_cache/
 .venv/

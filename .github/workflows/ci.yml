@@ -33,4 +33,10 @@ jobs:
 
       - name: Run tests with coverage gate
         working-directory: python3
-        run: pytest tests --cov=. --cov-report=term-missing --cov-fail-under=100
+        run: pytest tests --cov=. --cov-report=term-missing --cov-report=xml --cov-fail-under=100
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: python3/coverage.xml
+          fail_ci_if_error: false
