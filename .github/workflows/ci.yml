@@ -3,13 +3,11 @@ name: CI
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-"on":
+on:
   push:
     branches:
-      - "main"
+      - main
   pull_request:
-    branches:
-      - "**"
   workflow_dispatch:
 
 jobs:
