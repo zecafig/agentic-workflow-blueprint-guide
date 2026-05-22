@@ -1,6 +1,12 @@
 # Python cache
 __pycache__/
 python3/__pycache__/
+.coverage
+python3/.coverage
+.pytest_cache/
+python3/.pytest_cache/
+.venv/
+python3/.venv/
 
 # Generated blueprint artifacts (must never mix with guide core)
 generated_blueprints/
