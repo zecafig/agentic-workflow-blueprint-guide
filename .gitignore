@@ -8,6 +8,10 @@ python3/.pytest_cache/
 .venv/
 python3/.venv/
 
+# macOS metadata
+.DS_Store
+**/.DS_Store
+
 # Generated blueprint artifacts (must never mix with guide core)
 generated_blueprints/
 blueprint_inputs_*.json
