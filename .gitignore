@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+python3/__pycache__/
+
+# Generated blueprint artifacts (must never mix with guide core)
+generated_blueprints/
+blueprint_inputs_*.json
+blueprint_inputs_*.md
+blue_print_used_on_creation_blueprint_inputs_*.md
+
+# Local audit/run logs
+audit.log
+audit_full.log
