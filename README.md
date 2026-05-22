@@ -1,7 +1,7 @@
 # agentic-workflow-blueprint-guide
 
 [![CI](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml/badge.svg)](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml)
-![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+[![Coverage Gate](https://img.shields.io/github/actions/workflow/status/zecafig/agentic-workflow-blueprint-guide/ci.yml?branch=main&label=coverage%20gate)](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml)
 
 This repository contains reusable guidance for starting new projects with the official `agentic-workflow-blueprint` (AWB), which is the source of truth for workflow contracts, structure, and runbooks; this guide acts as the bootstrap layer that validates inputs, verifies alignment, and moves required AWB artifacts into a new project repository.
 

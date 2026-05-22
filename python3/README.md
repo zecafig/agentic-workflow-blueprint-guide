@@ -35,3 +35,4 @@ pytest tests --cov=. --cov-report=term-missing
 
 - Generated blueprint outputs are written under `../generated_blueprints/`.
 - Keep this folder language-specific and avoid mixing guide-core markdown files here.
+- Badge policy: use dynamic badges only (for example, workflow status). Do not use static hardcoded result badges.
