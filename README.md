@@ -28,7 +28,7 @@ Official AWB source:
 
 ## Language Support
 
-- Planned: Go, JavaScript, and other language-specific bootstrap files.
+- Planned: Other language-specific bootstrap files.
 - Current validated path: Python 3 (`python3/guide_me.py`).
 
 ## Official AWB Inventory Snapshot
