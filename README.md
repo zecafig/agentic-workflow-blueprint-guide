@@ -1,4 +1,4 @@
-# agentic-workflow-blueprint-guide (AWB)
+# agentic-workflow-blueprint-guide
 
 [![CI](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml/badge.svg)](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
