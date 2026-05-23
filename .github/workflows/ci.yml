@@ -34,7 +34,14 @@ jobs:
         run: pytest tests --cov=. --cov-report=term-missing --cov-report=xml --cov-fail-under=100
 
       - name: Upload coverage report to Codecov
+        if: ${{ secrets.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v5
         with:
           files: python3/coverage.xml
-          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: Codecov token missing notice
+        if: ${{ secrets.CODECOV_TOKEN == '' }}
+        run: echo "CODECOV_TOKEN is not configured; coverage uploads are skipped."
