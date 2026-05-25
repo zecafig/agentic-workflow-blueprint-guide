@@ -75,11 +75,14 @@ def test_simple_collection_helpers() -> None:
 
 
 def test_recommended_runbooks_paths_and_resolution(tmp_path: Path) -> None:
-    runbooks = helpers.recommended_runbooks(["document", "linear", "mcp-linear-sync"])
+    runbooks = helpers.recommended_runbooks(
+        ["document", "linear", "mcp-linear-sync", "plan-to-blueprint"]
+    )
     assert runbooks == [
         "document-review-changelog.md",
         "linear-mcp.md",
         "mcp-linear-sync.md",
+        "plan-to-blueprint.md",
     ]
 
     guide_dir = tmp_path / "guide"

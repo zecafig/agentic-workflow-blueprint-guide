@@ -33,6 +33,7 @@ Run these commands from the repository root.
 - `make help`: list available targets.
 - `make pre-bootstrap-audit`: run the mandatory pre-bootstrap alignment audit (`scripts/pre_bootstrap_audit.sh`).
 - `make audit`: alias of `make pre-bootstrap-audit`.
+- `make coverage`: run Python tests with a 100% coverage gate and write XML report to `python3/coverage.xml`.
 - `make clean`: remove generated artifacts, logs, and Python cache directories, then recreate `generated_blueprints/`.
 
 ## Language Support
