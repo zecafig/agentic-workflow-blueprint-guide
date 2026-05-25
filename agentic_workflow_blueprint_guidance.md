@@ -82,8 +82,8 @@ Do not require implementation/runtime setup (lint/test/build tooling) as part of
 
 Track these official examples and keep naming aligned:
 
-- workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`
-- runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`
+- workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`, `plan-to-blueprint`
+- runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`, `plan-to-blueprint.md`
 
 If upstream naming or contracts change, update this guide before the next bootstrap.
 

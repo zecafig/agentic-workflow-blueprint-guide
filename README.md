@@ -26,6 +26,15 @@ Official AWB source:
 - Makefile: standard team commands, including pre-bootstrap audit.
 - README.md: scope and usage rules.
 
+## Makefile Commands
+
+Run these commands from the repository root.
+
+- `make help`: list available targets.
+- `make pre-bootstrap-audit`: run the mandatory pre-bootstrap alignment audit (`scripts/pre_bootstrap_audit.sh`).
+- `make audit`: alias of `make pre-bootstrap-audit`.
+- `make clean`: remove generated artifacts, logs, and Python cache directories, then recreate `generated_blueprints/`.
+
 ## Language Support
 
 - Planned: Other language-specific bootstrap files.
@@ -33,8 +42,8 @@ Official AWB source:
 
 ## Official AWB Inventory Snapshot
 
-- workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`
-- runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`
+- workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`, `plan-to-blueprint`
+- runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`, `plan-to-blueprint.md`
 
 If upstream names/contracts change, update this guide repo before the next bootstrap run.
 

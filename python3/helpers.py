@@ -19,6 +19,7 @@ KNOWN_WORKFLOWS = {
     "linear",
     "mcp-linear-planner",
     "mcp-linear-sync",
+    "plan-to-blueprint",
 }
 
 DEFAULT_CORE_RULES = [
@@ -127,6 +128,8 @@ def recommended_runbooks(workflows: List[str]) -> List[str]:
         runbooks.append("linear-mcp.md")
     if any(w in workflows for w in MCP_SYNC_WORKFLOWS):
         runbooks.append("mcp-linear-sync.md")
+    if "plan-to-blueprint" in workflows:
+        runbooks.append("plan-to-blueprint.md")
 
     return runbooks
 

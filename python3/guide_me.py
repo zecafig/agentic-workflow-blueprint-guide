@@ -41,7 +41,7 @@ def print_input_guidance() -> None:
     print("- baseBranch: integration branch name (example: main or develop)")
     print("- existingRootDoc: root instruction file used by the project (example: AGENTS.md)")
     print("- workflowsWanted: comma-separated workflow ids (example: document, review, changelog)")
-    print("- known workflows: document, review, changelog, linear, mcp-linear-planner, mcp-linear-sync")
+    print("- known workflows: document, review, changelog, linear, mcp-linear-planner, mcp-linear-sync, plan-to-blueprint")
     print("- techStack: one item per line (example: Python, FastAPI, PostgreSQL)")
     print("- core rules: cross-project hard constraints")
     print("- stack-specific rules: implementation constraints tied to your chosen stack")

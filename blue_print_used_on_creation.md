@@ -27,8 +27,8 @@ Record the values used for:
 
 ## Official Workflow Naming Snapshot
 
-- workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`
-- runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`
+- workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`, `plan-to-blueprint`
+- runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`, `plan-to-blueprint.md`
 
 If official naming/contracts change, this snapshot must be updated.
 
