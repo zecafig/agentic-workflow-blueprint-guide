@@ -42,7 +42,7 @@ def print_input_guidance() -> None:
     print("- existingRootDoc: root instruction file used by the project (example: AGENTS.md)")
     print("- workflowsWanted: comma-separated workflow ids (example: document, review, changelog)")
     print("- known workflows: document, review, changelog, linear, mcp-linear-planner, mcp-linear-sync, plan-to-blueprint")
-    print("- techStack: one item per line (example: Python, FastAPI, PostgreSQL)")
+    print("- techStack: one item per line (example: Python 3, FastAPI, PostgreSQL)")
     print("- core rules: cross-project hard constraints")
     print("- stack-specific rules: implementation constraints tied to your chosen stack")
     print("- stack-specific defaults are preloaded for Python 3, with option to replace")
@@ -260,7 +260,7 @@ def run() -> int:
         print("They will be kept in inputs, but copy from official AWB may fail for them.")
 
     tech_stack = prompt_multiline(
-        "Enter tech stack items (examples: Node.js, Python, PostgreSQL, Redis, React)."
+        "Enter tech stack items (examples: Python 3, FastAPI, PostgreSQL, Redis, Celery)."
     )
 
     use_default_core = prompt_yes_no("Use default core rules", default_yes=True)

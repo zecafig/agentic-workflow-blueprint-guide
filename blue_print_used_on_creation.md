@@ -2,10 +2,10 @@
 
 ## Required Preparation
 
-- Before start, update `agentic-workflow-blueprint` repo.
+- Before starting, update the `agentic-workflow-blueprint` repository.
 - Review official blueprint files in `agentic-workflow-blueprint`.
 - Open the target project repository in VS Code.
-- Ask the LLM to review the current blueprint changes and this guidance repo.
+- Ask the LLM to review current blueprint changes and this guidance repository.
 
 ## Initial Input Snapshot
 
@@ -20,7 +20,7 @@ Record the values used for:
 
 ## Boundary Rules
 
-- Use the official `agentic-workflow-blueprint` repository as source of truth for structure and contracts.
+- Use the official `agentic-workflow-blueprint` repository as the source of truth for structure and contracts.
 - Execute scaffolding and implementation in the target project repository.
 - Do not modify the official `agentic-workflow-blueprint` repository with project-specific implementation changes.
 - Continue implementation from the new repository only after initial inputs are validated and initial artifacts are prepared.

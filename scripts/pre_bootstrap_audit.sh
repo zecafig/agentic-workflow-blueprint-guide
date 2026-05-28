@@ -117,10 +117,12 @@ main() {
   check_contains "$GUIDE_DIR/agentic_workflow_blueprint_guidance.md" "source of truth" || ((failures+=1))
   check_contains "$GUIDE_DIR/agentic_workflow_blueprint_guidance.md" "Required Workflow Contract Sections" || ((failures+=1))
   check_contains "$GUIDE_DIR/bootstrap_checklist.md" "Every workflow contract includes required sections" || ((failures+=1))
+  check_contains "$GUIDE_DIR/bootstrap_checklist.md" "Python 3 entrypoint" || ((failures+=1))
+  check_contains "$GUIDE_DIR/README.md" "supports only Python 3 bootstrap workflows" || ((failures+=1))
   check_contains "$GUIDE_DIR/python3/guide_me.py" "Canonical Constraints" || ((failures+=1))
 
   check_absent "$GUIDE_DIR/agentic_workflow_blueprint_guidance.md" 'Start the work while you are inside the official `agentic-workflow-blueprint` repository' || ((failures+=1))
-  check_absent "$GUIDE_DIR/python3/guide_me.py" "Python 3 only" || ((failures+=1))
+  check_absent "$GUIDE_DIR/README.md" "Other languages: planned" || ((failures+=1))
   check_absent "$GUIDE_DIR/python3/guide_me.py" "ruff check" || ((failures+=1))
 
   echo "== Guide cleanliness checks =="

@@ -34,7 +34,7 @@ pytest tests --cov=. --cov-report=term-missing
 ## Notes
 
 - Generated blueprint outputs are written under `../generated_blueprints/`.
-- Keep this folder language-specific and avoid mixing guide-core markdown files here.
+- Keep this folder Python-only and avoid mixing guide-core markdown files here.
 - GitHub Actions policy: set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` at workflow level to avoid deprecated Node runtimes in JavaScript-based actions.
 - CI trigger policy: run CI on `push` to `main` and on `pull_request` so every commit to main and every PR update is validated.
 - Badge policy: use dynamic badges only (for example, workflow status and Codecov). Do not use static hardcoded result badges.

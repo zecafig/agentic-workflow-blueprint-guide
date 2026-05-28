@@ -3,7 +3,7 @@
 [![CI](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml/badge.svg)](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/zecafig/agentic-workflow-blueprint-guide/graph/badge.svg?branch=main)](https://codecov.io/gh/zecafig/agentic-workflow-blueprint-guide)
 
-This repository contains reusable guidance for starting new projects with the official `agentic-workflow-blueprint` (AWB), which is the source of truth for workflow contracts, structure, and runbooks; this guide acts as the bootstrap layer that validates inputs, verifies alignment, and moves required AWB artifacts into a new project repository.
+This repository contains reusable guidance for starting new projects with the official `agentic-workflow-blueprint` (AWB). AWB is the source of truth for workflow contracts, structure, and runbooks. This guide is the bootstrap layer that validates inputs, verifies alignment, and moves required AWB artifacts into a new project repository.
 
 Official AWB source:
 - Name: `agentic-workflow-blueprint`
@@ -12,6 +12,7 @@ Official AWB source:
 ## Scope
 
 - Keep process guidance here in markdown.
+- Keep this guide Python 3 bootstrap-only.
 - Keep project implementation out of this repository.
 - Keep the official blueprint repository free of project-specific changes.
 - Keep workflow names and contract expectations aligned with official AWB.
@@ -33,13 +34,15 @@ Run these commands from the repository root.
 - `make help`: list available targets.
 - `make pre-bootstrap-audit`: run the mandatory pre-bootstrap alignment audit (`scripts/pre_bootstrap_audit.sh`).
 - `make audit`: alias of `make pre-bootstrap-audit`.
+- `make docs-audit`: run Python-only documentation consistency checks (`scripts/docs_audit.sh`).
 - `make coverage`: run Python tests with a 100% coverage gate and write XML report to `python3/coverage.xml`.
 - `make clean`: remove generated artifacts, logs, and Python cache directories, then recreate `generated_blueprints/`.
 
-## Language Support
+## Project Scope
 
-- Planned: Other language-specific bootstrap files.
-- Current validated path: Python 3 (`python3/guide_me.py`).
+- This repository supports only Python 3 bootstrap workflows.
+- Command entrypoint: `python3 python3/guide_me.py`.
+- No additional language bootstrap layers are planned in this repository.
 
 ## Official AWB Inventory Snapshot
 
@@ -51,16 +54,12 @@ If upstream names/contracts change, update this guide repo before the next boots
 ## How to use this repository
 
 1. Update and review the official blueprint repository as source of truth.
-2. Choose your project language/stack profile.
-3. Enter the language directory and read its local README before running anything:
-	- Python 3: `python3/README.md`
-4. Run the available language entrypoint:
-	- Python 3 (currently available): `python3 python3/guide_me.py`
-	- Other languages: planned (not available yet in this repository)
-5. If the report shows `[FAIL]`/`[WARN]`, stop, fix those items, and rerun `python3 python3/guide_me.py` until the audit passes.
-6. Open the target project repository in VS Code.
-7. Review the generated input outputs from `python3/guide_me.py` and refine your answers by rerunning `python3 python3/guide_me.py` until the inputs are correct.
-8. Treat the latest generated inputs (`projectSlug`, `workflowsWanted`, constraints, and stack details) as the source that feeds your AWB scaffolding decisions.
-9. Complete `bootstrap_checklist.md` and treat unchecked required items as a hard stop.
-10. Copy only selected blueprint artifacts into the target project repository and keep official AWB unchanged.
-11. Start implementation only in the target project repository after the checklist and handoff gate are fully passed.
+2. Read `python3/README.md` before running anything.
+3. Run the entrypoint: `python3 python3/guide_me.py`.
+4. If the report shows `[FAIL]`/`[WARN]`, stop, fix those items, and rerun `python3 python3/guide_me.py` until the audit passes.
+5. Open the target project repository in VS Code.
+6. Review the generated input outputs from `python3/guide_me.py` and refine your answers by rerunning `python3 python3/guide_me.py` until the inputs are correct.
+7. Treat the latest generated inputs (`projectSlug`, `workflowsWanted`, constraints, and stack details) as the source that feeds your AWB scaffolding decisions.
+8. Complete `bootstrap_checklist.md` and treat unchecked required items as a hard stop.
+9. Copy only selected blueprint artifacts into the target project repository and keep official AWB unchanged.
+10. Start implementation only in the target project repository after the checklist and handoff gate are fully passed.

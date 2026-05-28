@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide defines how to start a project with agentic-workflow-blueprint, keep the official blueprint repository unchanged, and hand off implementation to the new project repository at the right time.
+This guide explains how to start a project with agentic-workflow-blueprint, keep the official blueprint repository unchanged, and hand off implementation to the new project repository at the right time.
 
 ## Operating model
 
@@ -17,8 +17,7 @@ Official AWB reference:
 
 ## Core Rule
 
-Use the official `agentic-workflow-blueprint` repository as the source of truth.
-Execute project bootstrap in the target project repository.
+Use the official `agentic-workflow-blueprint` repository as the source of truth, and execute project bootstrap in the target project repository.
 
 ## Boundary Rule
 
@@ -26,16 +25,16 @@ Do not make project-specific implementation changes in the official `agentic-wor
 
 Use the official blueprint repository to:
 
-- inspect the current workflow structure
-- review the latest blueprint files
-- define the initial inputs for the new project
-- prepare the initial files that will be copied into the new repository
+- Inspect the current workflow structure.
+- Review the latest blueprint files.
+- Define the initial inputs for the new project.
+- Prepare the initial files that will be copied into the new repository.
 
 Do not use the official blueprint repository to:
 
-- hold the real implementation of the new product
-- accumulate project-specific commits
-- become the working repository for the new product
+- Hold the real implementation of the new product.
+- Accumulate project-specific commits.
+- Become the working repository for the new product.
 
 Never copy this guidance repository into the official blueprint repository.
 
@@ -47,7 +46,7 @@ Before starting a new project:
 2. Run the mandatory automated pre-bootstrap audit in this guide repository:
 	`make pre-bootstrap-audit`
 3. Review official blueprint files and examples in `agentic-workflow-blueprint`.
-4. Ask the LLM to review the current changes in the blueprint repo and review this guide repository.
+4. Ask the LLM to review current changes in the blueprint repository and this guidance repository.
 5. Open the target project repository in VS Code.
 6. Define the project inputs before generating files.
 
@@ -70,13 +69,13 @@ During the blueprint phase, prepare the initial artifacts that the new repositor
 
 These typically include:
 
-- root instruction files such as `AGENTS.md`
-- workflow contract files under `skills/<project>/...`
-- any other files created directly from the initial inputs
+- Root instruction files such as `AGENTS.md`.
+- Workflow contract files under `skills/<project>/...`.
+- Any other files created directly from the initial inputs.
 
 Only copy selected artifacts into the new project repository. Do not move or rewrite official blueprint files.
 
-Do not require implementation/runtime setup (lint/test/build tooling) as part of blueprint completion. Treat those as post-handoff project setup.
+Do not require implementation or runtime setup (lint, test, build tooling) as part of blueprint completion. Treat those as post-handoff project setup.
 
 ## Official Workflow and Runbook Inventory
 
@@ -116,10 +115,10 @@ After handoff, do not continue implementation in the official blueprint reposito
 
 The new repository must contain:
 
-- the files created from the initial inputs
-- the workflow and orchestration files needed for the agent harness
-- any project tooling files required by the target stack (post-handoff, project-specific)
-- a project-local traceability file named `blue_print_used_on_creation.md`
+- The files created from the initial inputs.
+- The workflow and orchestration files needed for the agent harness.
+- Any project tooling files required by the target stack (post-handoff, project-specific).
+- A project-local traceability file named `blue_print_used_on_creation.md`.
 
 ## Required Traceability File
 
@@ -127,10 +126,10 @@ Create a file named `blue_print_used_on_creation.md` in the new repository root.
 
 Its purpose is to record:
 
-- that the project was started from the blueprint flow
-- what preparation steps were required before start
-- that the official blueprint repository must remain unchanged for project-specific work
-- when the team should continue from the new repository
+- That the project was started from the blueprint flow.
+- What preparation steps were required before start.
+- That the official blueprint repository must remain unchanged for project-specific work.
+- When the team should continue from the new repository.
 
 Use the template in this guidance repository as the starting point.
 
