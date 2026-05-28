@@ -115,6 +115,7 @@ main() {
 
   echo "== Contract alignment checks =="
   check_contains "$GUIDE_DIR/agentic_workflow_blueprint_guidance.md" "source of truth" || ((failures+=1))
+  check_contains "$GUIDE_DIR/agentic_workflow_blueprint_guidance.md" "Developers own language, stack, and implementation decisions" || ((failures+=1))
   check_contains "$GUIDE_DIR/agentic_workflow_blueprint_guidance.md" "Required Workflow Contract Sections" || ((failures+=1))
   check_contains "$GUIDE_DIR/bootstrap_checklist.md" "Every workflow contract includes required sections" || ((failures+=1))
   check_contains "$GUIDE_DIR/bootstrap_checklist.md" "Python 3 entrypoint" || ((failures+=1))

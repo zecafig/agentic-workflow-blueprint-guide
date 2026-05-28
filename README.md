@@ -44,6 +44,12 @@ Run these commands from the repository root.
 - Command entrypoint: `python3 python3/guide_me.py`.
 - No additional language bootstrap layers are planned in this repository.
 
+## Responsibility Model
+
+- Python developers define and own implementation decisions.
+- AI supports documentation, input collection, and scaffolding guidance in this repository.
+- Developers, not AI, decide and execute virtual environment setup, dependency selection (`pip`), test and coverage standards, automation/CI flows, database architecture, and backend/frontend implementation choices.
+
 ## Official AWB Inventory Snapshot
 
 - workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`, `plan-to-blueprint`
@@ -59,7 +65,7 @@ If upstream names/contracts change, update this guide repo before the next boots
 4. If the report shows `[FAIL]`/`[WARN]`, stop, fix those items, and rerun `python3 python3/guide_me.py` until the audit passes.
 5. Open the target project repository in VS Code.
 6. Review the generated input outputs from `python3/guide_me.py` and refine your answers by rerunning `python3 python3/guide_me.py` until the inputs are correct.
-7. Treat the latest generated inputs (`projectSlug`, `workflowsWanted`, constraints, and stack details) as the source that feeds your AWB scaffolding decisions.
+7. Treat the latest generated inputs (`projectSlug`, `workflowsWanted`, constraints, and stack details) as source material for developer-led AWB scaffolding decisions.
 8. Complete `bootstrap_checklist.md` and treat unchecked required items as a hard stop.
 9. Copy only selected blueprint artifacts into the target project repository and keep official AWB unchanged.
 10. Start implementation only in the target project repository after the checklist and handoff gate are fully passed.

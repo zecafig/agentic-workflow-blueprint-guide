@@ -19,6 +19,12 @@ Official AWB reference:
 
 Use the official `agentic-workflow-blueprint` repository as the source of truth, and execute project bootstrap in the target project repository.
 
+## Responsibility Rule
+
+Developers own language, stack, and implementation decisions.
+AI is an assistant for guidance and scaffolding, not the decision-maker for runtime architecture.
+Developers are responsible for virtual environments, dependency management, tests and coverage, automation/CI, database choices, and backend/frontend implementation.
+
 ## Boundary Rule
 
 Do not make project-specific implementation changes in the official `agentic-workflow-blueprint` repository.
@@ -75,7 +81,7 @@ These typically include:
 
 Only copy selected artifacts into the new project repository. Do not move or rewrite official blueprint files.
 
-Do not require implementation or runtime setup (lint, test, build tooling) as part of blueprint completion. Treat those as post-handoff project setup.
+Do not require implementation or runtime setup (lint, test, build tooling) as part of blueprint completion. Treat those as post-handoff project setup owned by the development team.
 
 ## Official Workflow and Runbook Inventory
 

@@ -27,6 +27,7 @@ Use this checklist at the start of every new project to reduce setup drift.
 - [ ] I created or opened the new project repository.
 - [ ] I copied only selected artifacts to the new project repository.
 - [ ] I did not move or rewrite official blueprint files.
+- [ ] I confirmed the development team owns environment, dependencies, tests/coverage, automation, database, and backend/frontend implementation decisions.
 
 ## D. New Repo Readiness
 
