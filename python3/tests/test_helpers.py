@@ -91,6 +91,23 @@ def test_recommended_runbooks_paths_and_resolution(tmp_path: Path) -> None:
     assert resolved == (guide_dir / "../agentic-workflow-blueprint").resolve()
 
 
+def test_validate_target_dir_rejects_guide_subdir(tmp_path: Path) -> None:
+    guide_dir = tmp_path / "guide"
+    guide_dir.mkdir(parents=True)
+    invalid_target = guide_dir / "loto"
+
+    with pytest.raises(ValueError):
+        helpers.validate_target_dir(guide_dir=guide_dir, target_dir=invalid_target)
+
+
+def test_validate_target_dir_accepts_external_path(tmp_path: Path) -> None:
+    guide_dir = tmp_path / "guide"
+    target_dir = tmp_path / "new-project"
+    guide_dir.mkdir(parents=True)
+
+    helpers.validate_target_dir(guide_dir=guide_dir, target_dir=target_dir)
+
+
 def test_copy_file_if_missing_and_copy_tree_if_missing(tmp_path: Path) -> None:
     copied: list[str] = []
     skipped: list[str] = []
@@ -229,3 +246,36 @@ def test_copy_bootstrap_assets_success_and_failure(tmp_path: Path) -> None:
     assert skipped2
     assert copied2
     assert any("Bundle verification failed" in item for item in warnings2)
+
+
+def test_copy_bootstrap_assets_rejects_target_inside_guide(tmp_path: Path) -> None:
+    data = _sample_inputs(["document"])
+    guide_dir = tmp_path / "guide"
+    official = tmp_path / "agentic-workflow-blueprint"
+
+    guide_dir.mkdir(parents=True)
+    (guide_dir / "bootstrap_checklist.md").write_text("check", encoding="utf-8")
+    (guide_dir / "agentic_workflow_blueprint_guidance.md").write_text("guide", encoding="utf-8")
+
+    (official / "workflows" / "document").mkdir(parents=True)
+    (official / "workflows" / "document" / "README.md").write_text("wf", encoding="utf-8")
+    (official / "runbooks").mkdir(parents=True)
+    (official / "runbooks" / "document-review-changelog.md").write_text("rb", encoding="utf-8")
+    (official / "AGENTS.md").write_text("agents", encoding="utf-8")
+
+    json_path = tmp_path / "inputs.json"
+    md_path = tmp_path / "inputs.md"
+    creation_path = tmp_path / "blue_print_used_on_creation.md"
+    json_path.write_text("{}", encoding="utf-8")
+    md_path.write_text("# md", encoding="utf-8")
+    creation_path.write_text("# creation", encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        helpers.copy_bootstrap_assets(
+            guide_dir=guide_dir,
+            data=data,
+            json_path=json_path,
+            md_path=md_path,
+            creation_template_path=creation_path,
+            target_dir_text=str(guide_dir / "loto"),
+        )
