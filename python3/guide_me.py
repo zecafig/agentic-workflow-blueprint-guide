@@ -28,6 +28,7 @@ from helpers import (
     prompt_multiline,
     prompt_yes_no,
     recommended_runbooks,
+    resolve_official_awb_dir,
     unique_in_order,
     validate_slug,
 )
@@ -185,6 +186,10 @@ def write_outputs(data: BlueprintInputs) -> tuple[Path, Path, Path]:
     return json_path, md_path, creation_template_path
 
 
+def default_target_project_dir(project_slug: str) -> str:
+    return str((Path("~/Documents/GitHub").expanduser() / project_slug).resolve())
+
+
 def run_pre_bootstrap_audit() -> bool:
     guide_dir = Path(__file__).resolve().parent.parent
     cmd = ["make", "pre-bootstrap-audit"]
@@ -225,10 +230,25 @@ def run_pre_bootstrap_audit() -> bool:
     return True
 
 
+def ensure_official_awb_dir_exists() -> bool:
+    guide_dir = Path(__file__).resolve().parent.parent
+    official_awb_dir = resolve_official_awb_dir(guide_dir)
+    if official_awb_dir.exists() and official_awb_dir.is_dir():
+        return True
+
+    print("Error: official AWB directory is missing.")
+    print(f"Expected directory: {official_awb_dir}")
+    print("This guide requires official AWB at ../agentic-workflow-blueprint")
+    return False
+
+
 def run() -> int:
     print("Agentic Workflow Blueprint - Input Collector")
     print("Run this while preparing a new project bootstrap.")
     print()
+
+    if not ensure_official_awb_dir_exists():
+        return 1
 
     if not run_pre_bootstrap_audit():
         return 1
@@ -327,17 +347,30 @@ def run() -> int:
         "I can copy everything needed from this guide and from official AWB to a new project directory. Do it now",
         default_yes=False,
     ):
-        default_target = f"~/Documents/GitHub/{data.project_slug}"
+        default_target = default_target_project_dir(data.project_slug)
         target_dir_text = prompt("Target project directory", default_target)
+        resolved_target = str(Path(target_dir_text).expanduser().resolve())
+        print(f"Resolved target directory: {resolved_target}")
+        if not prompt_yes_no(
+            "Proceed copying bootstrap bundle to this directory",
+            default_yes=True,
+        ):
+            print("Copy cancelled by user.")
+            return 0
+
         guide_dir = Path(__file__).resolve().parent.parent
-        copied, skipped, warnings = copy_bootstrap_assets(
-            guide_dir=guide_dir,
-            data=data,
-            json_path=json_path,
-            md_path=md_path,
-            creation_template_path=creation_template_path,
-            target_dir_text=target_dir_text,
-        )
+        try:
+            copied, skipped, warnings = copy_bootstrap_assets(
+                guide_dir=guide_dir,
+                data=data,
+                json_path=json_path,
+                md_path=md_path,
+                creation_template_path=creation_template_path,
+                target_dir_text=target_dir_text,
+            )
+        except ValueError as exc:
+            print(f"Error: {exc}")
+            return 1
 
         print()
         print("Copy report:")

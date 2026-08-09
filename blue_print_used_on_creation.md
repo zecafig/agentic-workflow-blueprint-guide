@@ -29,6 +29,8 @@ Record the values used for:
 
 - workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`, `plan-to-blueprint`
 - runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`, `plan-to-blueprint.md`
+- additional workflows observed upstream: `analyzing-kubernetes-audit-logs`, `brainstorming`, `c4-architecture`, `changelog-generator`, `html-manual`, `iac`, `implementing-devsecops-security-scanning`, `implementing-network-policies-for-kubernetes`, `implementing-pod-security-admission-controller`, `implementing-rbac-hardening-for-kubernetes`, `implementing-syslog-centralization-with-rsyslog`, `infra-operations`, `network-engineering`, `os-platform`, `performing-container-image-hardening`, `performing-container-security-scanning-with-trivy`, `performing-kubernetes-cis-benchmark-with-kube-bench`, `performing-vulnerability-scanning-with-nessus`, `plan-writing`, `radioactive`, `remediating-s3-bucket-misconfiguration`, `remotion-video-motion`, `scanning-containers-with-trivy-in-cicd`, `scanning-docker-images-with-trivy`, `scanning-kubernetes-manifests-with-kubesec`, `securing-aws-iam-permissions`, `securing-container-registry-images`, `securing-github-actions-workflows`, `securing-kubernetes-on-cloud`, `thermo-fix`, `thermo-nuclear-code-quality-review`, `triaging-vulnerabilities-with-ssvc-framework`, `ui-ux-pro-max`
+- additional runbooks observed upstream: `iac-delivery.md`, `network-change.md`, `os-hardening-patching.md`
 
 If official naming/contracts change, this snapshot must be updated.
 

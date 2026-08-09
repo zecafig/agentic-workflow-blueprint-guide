@@ -73,6 +73,34 @@ def test_write_outputs_creates_expected_files(tmp_path: Path, monkeypatch: pytes
     assert "blueprint_inputs_proj-x_20260522T010203Z" in json_path.name
 
 
+def test_default_target_project_dir_uses_fixed_base(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("AWB_TARGET_BASE_DIR", "~/Sandbox")
+    target = guide_me.default_target_project_dir("proj-x")
+    assert target.endswith("/Documents/GitHub/proj-x")
+
+
+def test_ensure_official_awb_dir_exists_reports_missing(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fake_file = Path("/tmp/workspace/python3/guide_me.py")
+    monkeypatch.setattr(guide_me, "__file__", str(fake_file))
+
+    assert guide_me.ensure_official_awb_dir_exists() is False
+    out = capsys.readouterr().out
+    assert "official AWB directory is missing" in out
+    assert "../agentic-workflow-blueprint" in out
+
+
+def test_ensure_official_awb_dir_exists_reports_present(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    awb_dir = tmp_path / "agentic-workflow-blueprint"
+    awb_dir.mkdir(parents=True)
+    monkeypatch.setattr(guide_me, "resolve_official_awb_dir", lambda _guide_dir: awb_dir)
+
+    assert guide_me.ensure_official_awb_dir_exists() is True
+
+
 def test_run_pre_bootstrap_audit_file_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_file = Path("/tmp/guide_me.py")
     monkeypatch.setattr(guide_me, "__file__", str(fake_file))
@@ -115,11 +143,18 @@ def test_run_pre_bootstrap_audit_failure_and_success(
 
 
 def test_run_returns_one_when_audit_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
     monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: False)
     assert guide_me.run() == 1
 
 
+def test_run_returns_one_when_awb_dir_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: False)
+    assert guide_me.run() == 1
+
+
 def test_run_happy_path_without_copy(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
     monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
     monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
 
@@ -156,6 +191,7 @@ def test_run_happy_path_without_copy(monkeypatch: pytest.MonkeyPatch, tmp_path: 
 
 
 def test_run_copy_bundle_pass_and_fail(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
     monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
     monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
 
@@ -166,7 +202,7 @@ def test_run_copy_bundle_pass_and_fail(monkeypatch: pytest.MonkeyPatch, tmp_path
     multiline_values = iter([["Python"], ["notes"]])
     monkeypatch.setattr(guide_me, "prompt_multiline", lambda *_a, **_k: next(multiline_values))
 
-    yes_no_values = iter([True, True, True])
+    yes_no_values = iter([True, True, True, True])
     monkeypatch.setattr(guide_me, "prompt_yes_no", lambda *_a, **_k: next(yes_no_values))
 
     out_json = tmp_path / "in2.json"
@@ -190,13 +226,76 @@ def test_run_copy_bundle_pass_and_fail(monkeypatch: pytest.MonkeyPatch, tmp_path
     monkeypatch.setattr(guide_me, "prompt_csv_list", lambda *_a, **_k: ["unknown"])
     multiline_values_2 = iter([["Python"], ["notes"]])
     monkeypatch.setattr(guide_me, "prompt_multiline", lambda *_a, **_k: next(multiline_values_2))
-    yes_no_values_2 = iter([True, True, True])
+    yes_no_values_2 = iter([True, True, True, True])
     monkeypatch.setattr(guide_me, "prompt_yes_no", lambda *_a, **_k: next(yes_no_values_2))
 
     monkeypatch.setattr(
         guide_me,
         "copy_bootstrap_assets",
         lambda **_k: (["copied-b"], ["skip-b"], ["warn-a"]),
+    )
+    assert guide_me.run() == 0
+
+
+def test_run_copy_bundle_invalid_target_dir(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
+    monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
+    monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
+
+    prompt_values = iter(["proj-y", "main", "AGENTS.md", str(tmp_path / "guide" / "loto")])
+    monkeypatch.setattr(guide_me, "prompt", lambda *_a, **_k: next(prompt_values))
+    monkeypatch.setattr(guide_me, "prompt_csv_list", lambda *_a, **_k: ["document"])
+
+    multiline_values = iter([["Python"], ["notes"]])
+    monkeypatch.setattr(guide_me, "prompt_multiline", lambda *_a, **_k: next(multiline_values))
+
+    yes_no_values = iter([True, True, True, True])
+    monkeypatch.setattr(guide_me, "prompt_yes_no", lambda *_a, **_k: next(yes_no_values))
+
+    out_json = tmp_path / "in2.json"
+    out_md = tmp_path / "in2.md"
+    out_creation = tmp_path / "blue_print_used_on_creation.md"
+    out_json.write_text("{}", encoding="utf-8")
+    out_md.write_text("# md", encoding="utf-8")
+    out_creation.write_text("# creation", encoding="utf-8")
+    monkeypatch.setattr(guide_me, "write_outputs", lambda _data: (out_json, out_md, out_creation))
+
+    def _raise_value_error(**_kwargs):
+        raise ValueError("invalid target")
+
+    monkeypatch.setattr(guide_me, "copy_bootstrap_assets", _raise_value_error)
+    assert guide_me.run() == 1
+
+
+def test_run_copy_bundle_user_cancels_after_resolution(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
+    monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
+    monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
+
+    prompt_values = iter(["proj-y", "main", "AGENTS.md", str(tmp_path / "target")])
+    monkeypatch.setattr(guide_me, "prompt", lambda *_a, **_k: next(prompt_values))
+    monkeypatch.setattr(guide_me, "prompt_csv_list", lambda *_a, **_k: ["document"])
+
+    multiline_values = iter([["Python"], ["notes"]])
+    monkeypatch.setattr(guide_me, "prompt_multiline", lambda *_a, **_k: next(multiline_values))
+
+    yes_no_values = iter([True, True, True, False])
+    monkeypatch.setattr(guide_me, "prompt_yes_no", lambda *_a, **_k: next(yes_no_values))
+
+    out_json = tmp_path / "in2.json"
+    out_md = tmp_path / "in2.md"
+    out_creation = tmp_path / "blue_print_used_on_creation.md"
+    out_json.write_text("{}", encoding="utf-8")
+    out_md.write_text("# md", encoding="utf-8")
+    out_creation.write_text("# creation", encoding="utf-8")
+    monkeypatch.setattr(guide_me, "write_outputs", lambda _data: (out_json, out_md, out_creation))
+
+    monkeypatch.setattr(
+        guide_me,
+        "copy_bootstrap_assets",
+        lambda **_kwargs: pytest.fail("copy_bootstrap_assets should not be called when user cancels"),
     )
     assert guide_me.run() == 0
 

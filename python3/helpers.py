@@ -138,6 +138,17 @@ def resolve_official_awb_dir(guide_dir: Path) -> Path:
     return (guide_dir / "../agentic-workflow-blueprint").resolve()
 
 
+def validate_target_dir(guide_dir: Path, target_dir: Path) -> None:
+    resolved_guide_dir = guide_dir.resolve()
+    resolved_target_dir = target_dir.resolve()
+
+    if resolved_target_dir == resolved_guide_dir or resolved_guide_dir in resolved_target_dir.parents:
+        raise ValueError(
+            "Target project directory cannot be inside this guide repository. "
+            "Use a separate project directory typed by the user (for example: ~/Documents/GitHub/<project-slug>)."
+        )
+
+
 def copy_file_if_missing(
     src: Path, dst: Path, copied: List[str], skipped: List[str], warnings: List[str]
 ) -> None:
@@ -180,6 +191,7 @@ def copy_bootstrap_assets(
 ) -> tuple[List[str], List[str], List[str]]:
     target_dir = Path(target_dir_text).expanduser().resolve()
     official_awb_dir = resolve_official_awb_dir(guide_dir)
+    validate_target_dir(guide_dir=guide_dir, target_dir=target_dir)
 
     copied: List[str] = []
     skipped: List[str] = []
