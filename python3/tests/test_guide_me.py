@@ -91,6 +91,16 @@ def test_ensure_official_awb_dir_exists_reports_missing(
     assert "../agentic-workflow-blueprint" in out
 
 
+def test_ensure_official_awb_dir_exists_reports_present(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    awb_dir = tmp_path / "agentic-workflow-blueprint"
+    awb_dir.mkdir(parents=True)
+    monkeypatch.setattr(guide_me, "resolve_official_awb_dir", lambda _guide_dir: awb_dir)
+
+    assert guide_me.ensure_official_awb_dir_exists() is True
+
+
 def test_run_pre_bootstrap_audit_file_not_found(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_file = Path("/tmp/guide_me.py")
     monkeypatch.setattr(guide_me, "__file__", str(fake_file))
