@@ -7,6 +7,7 @@ Use this checklist at the start of every new project to reduce setup drift.
 - [ ] I pulled the latest changes from the official blueprint repository.
 - [ ] I ran `make pre-bootstrap-audit` and it passed.
 - [ ] I reviewed official AWB files and examples as source of truth.
+- [ ] I reviewed the official AWB skills catalog and selected the skills relevant to the project.
 - [ ] I opened the target project repository in VS Code.
 - [ ] I reviewed blueprint changes and confirmed no project-specific changes will be made there.
 - [ ] I reviewed guidance files in this repository.
@@ -33,7 +34,7 @@ Use this checklist at the start of every new project to reduce setup drift.
 
 - [ ] blue_print_used_on_creation.md exists in the new project repository root.
 - [ ] AGENTS.md and workflow files are present as needed.
-- [ ] Workflow naming matches official AWB naming.
+- [ ] Workflow and skill naming matches official AWB naming.
 - [ ] Every workflow contract includes required sections: Goal, Scope, Triggers, Inputs, Invariants, Procedure, Outputs, Review gate, References.
 - [ ] Root guidance stays minimal and links to canonical workflow contracts.
 

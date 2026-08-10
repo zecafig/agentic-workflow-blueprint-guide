@@ -3,7 +3,7 @@
 [![CI](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml/badge.svg)](https://github.com/zecafig/agentic-workflow-blueprint-guide/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/zecafig/agentic-workflow-blueprint-guide/graph/badge.svg?branch=main)](https://codecov.io/gh/zecafig/agentic-workflow-blueprint-guide)
 
-This repository contains reusable guidance for starting new projects with the official `agentic-workflow-blueprint` (AWB). AWB is the source of truth for workflow contracts, structure, and runbooks. This guide is the bootstrap layer that validates inputs, verifies alignment, and moves required AWB artifacts into a new project repository.
+This repository contains reusable guidance for starting new projects with the official `agentic-workflow-blueprint` (AWB). AWB is the source of truth for workflow contracts, structure, runbooks, and the official skills catalog. This guide is the bootstrap layer that validates inputs, verifies alignment, and moves required AWB artifacts into a new project repository.
 
 Official AWB source:
 - Name: `agentic-workflow-blueprint`
@@ -16,6 +16,7 @@ Official AWB source:
 - Keep project implementation out of this repository.
 - Keep the official blueprint repository free of project-specific changes.
 - Keep workflow names and contract expectations aligned with official AWB.
+- Keep the official AWB skills catalog in view when selecting project capabilities.
 
 ## Files
 
@@ -53,6 +54,7 @@ Run these commands from the repository root.
 ## Official AWB Inventory Snapshot
 
 - workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`, `plan-to-blueprint`
+- skills: review the official AWB skills catalog and capture the skill IDs or directories that match the project scope and selected workflows
 - runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`, `plan-to-blueprint.md`
 - additional workflows observed upstream: `analyzing-kubernetes-audit-logs`, `brainstorming`, `c4-architecture`, `changelog-generator`, `html-manual`, `iac`, `implementing-devsecops-security-scanning`, `implementing-network-policies-for-kubernetes`, `implementing-pod-security-admission-controller`, `implementing-rbac-hardening-for-kubernetes`, `implementing-syslog-centralization-with-rsyslog`, `infra-operations`, `network-engineering`, `os-platform`, `performing-container-image-hardening`, `performing-container-security-scanning-with-trivy`, `performing-kubernetes-cis-benchmark-with-kube-bench`, `performing-vulnerability-scanning-with-nessus`, `plan-writing`, `radioactive`, `remediating-s3-bucket-misconfiguration`, `remotion-video-motion`, `scanning-containers-with-trivy-in-cicd`, `scanning-docker-images-with-trivy`, `scanning-kubernetes-manifests-with-kubesec`, `securing-aws-iam-permissions`, `securing-container-registry-images`, `securing-github-actions-workflows`, `securing-kubernetes-on-cloud`, `thermo-fix`, `thermo-nuclear-code-quality-review`, `triaging-vulnerabilities-with-ssvc-framework`, `ui-ux-pro-max`
 - additional runbooks observed upstream: `iac-delivery.md`, `network-change.md`, `os-hardening-patching.md`
