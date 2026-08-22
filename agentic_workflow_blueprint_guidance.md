@@ -4,6 +4,42 @@
 
 This guide explains how to start a project with agentic-workflow-blueprint, keep the official blueprint repository unchanged, and hand off implementation to the new project repository at the right time.
 
+## Agent First-Read Verification Protocol
+
+Any agent reading this repository for the first time must run this protocol before doing anything else. This section is the source of truth for how to verify the repository is healthy. Do not skip steps and do not assume a failure is harmless without independent proof.
+
+1. **Run `make pre-bootstrap-audit` from the guide repo root.**
+   - If it prints `Pre-bootstrap audit PASSED.`, continue to step 4.
+   - If it prints `FAILED`, do not stop yet. Classify every `[FAIL]` line using step 2 or step 3.
+
+2. **Failures about this guide repo's own files** (`README.md`, `agentic_workflow_blueprint_guidance.md`, `bootstrap_checklist.md`, `blue_print_used_on_creation.md`, `python3/guide_me.py`, `python3/helpers.py`, missing-section or forbidden-text checks, leftover generated files): treat these as real. Fix the content, rerun `make pre-bootstrap-audit`, and confirm it passes before continuing.
+
+3. **Failures about the official `agentic-workflow-blueprint` sibling repo** (missing `AGENTS.md`/`SKILL.md`/`README.md`, missing `workflows`/`runbooks` directories, or "no upstream tracking branch configured"): do not accept the script's verdict at face value. Independently verify with direct, absolute-path commands before deciding whether this is real:
+   - `ls -la <official-repo-path>/AGENTS.md <official-repo-path>/SKILL.md <official-repo-path>/README.md`
+   - `git -C <official-repo-path> remote -v && git -C <official-repo-path> status -sb`
+   - **Known environment artifact:** in a sandboxed terminal (for example, a VS Code chat agent tool sandbox), relative `..` traversal from the guide repo's working directory out to a sibling repository outside the current workspace folder can silently fail even though the files and git tracking genuinely exist. This shows up as `[FAIL] Missing file: .../guide/../agentic-workflow-blueprint/AGENTS.md` and `[FAIL] Official repo has no upstream tracking branch configured.` while direct `ls`/`git` checks on the same absolute path succeed.
+   - If the direct checks show the files/tracking **do** exist, treat the audit failure as a sandbox/terminal artifact, not a repo defect. Re-run the audit from a normal (non-sandboxed) terminal, or re-run with the path pinned explicitly: `OFFICIAL_AWB_REPO=<absolute-path-to-official-repo> make pre-bootstrap-audit` (or the equivalent `bash scripts/pre_bootstrap_audit.sh` invocation). Only escalate to the user if it still fails after that.
+   - If the direct checks confirm the files or tracking are genuinely missing, this is a real `[FAIL]`: stop, fix upstream alignment (pull/clone the official repo, configure the branch to track `origin/main`, or restore the missing files), and rerun until it passes.
+
+4. **Run `make docs-audit`.** It must print `Documentation audit PASSED.` before continuing. This checks that Python-only scope statements, skills-catalog references, and forbidden multi-language phrasing stay consistent across `README.md`, `agentic_workflow_blueprint_guidance.md`, `bootstrap_checklist.md`, `python3/README.md`, and `python3/guide_me.py`.
+
+5. **Run the Python 3 test suite with coverage** from `python3/`:
+   ```bash
+   cd python3
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   pytest tests --cov=. --cov-report=term-missing
+   ```
+   Confirm all tests pass and coverage is 100% for `guide_me.py` and `helpers.py`. Equivalently, `make coverage` from the repo root enforces the same 100% gate and writes `python3/coverage.xml`.
+
+6. **Only proceed** to the "Before Starting" steps below once:
+   - Every real `[FAIL]` from `make pre-bootstrap-audit` is resolved (sandbox artifacts excluded per step 3).
+   - `make docs-audit` passes.
+   - The Python 3 test suite passes with 100% coverage.
+
+If any step cannot be completed or verified, stop and report the specific unresolved failure instead of assuming success.
+
 ## Operating model
 
 - The official `agentic-workflow-blueprint` repository is the source of workflow templates, skills, and contracts.

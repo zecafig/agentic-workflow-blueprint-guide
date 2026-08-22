@@ -4,8 +4,11 @@ Use this checklist at the start of every new project to reduce setup drift.
 
 ## A. Preflight
 
+- [ ] I read and followed the "Agent First-Read Verification Protocol" in `agentic_workflow_blueprint_guidance.md`.
+- [ ] I ran `make pre-bootstrap-audit` and either it passed, or every `[FAIL]` was independently verified as a sandbox/terminal artifact (not a real defect) per the protocol.
+- [ ] I ran `make docs-audit` and it passed.
+- [ ] I ran the Python 3 test suite with coverage and confirmed 100% coverage.
 - [ ] I pulled the latest changes from the official blueprint repository.
-- [ ] I ran `make pre-bootstrap-audit` and it passed.
 - [ ] I reviewed official AWB files and examples as source of truth.
 - [ ] I reviewed the official AWB skills catalog and selected the skills relevant to the project.
 - [ ] I opened the target project repository in VS Code.
