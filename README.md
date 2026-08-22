@@ -61,6 +61,10 @@ Run these commands from the repository root.
 
 If upstream names/contracts change, update this guide repo before the next bootstrap run.
 
+## Agent First-Read Verification Protocol
+
+Any agent must run the full protocol in `agentic_workflow_blueprint_guidance.md` ("Agent First-Read Verification Protocol") before starting bootstrap work: run `make pre-bootstrap-audit`, `make docs-audit`, and the Python 3 test suite with coverage, and confirm all real failures are resolved. That section also documents a known sandboxed-terminal artifact where checks against the official `agentic-workflow-blueprint` sibling repo can report false failures; verify with direct `ls`/`git` commands before treating any such failure as real.
+
 ## How to use this repository
 
 1. Update and review the official blueprint repository as source of truth.
