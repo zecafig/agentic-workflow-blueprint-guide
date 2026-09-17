@@ -11,7 +11,11 @@ import guide_me
 from helpers import BlueprintInputs
 
 
-def _data(notes: list[str] | None = None, workflows: list[str] | None = None) -> BlueprintInputs:
+def _data(
+    notes: list[str] | None = None,
+    workflows: list[str] | None = None,
+    project_mode: str = "new",
+) -> BlueprintInputs:
     return BlueprintInputs(
         project_slug="proj-x",
         base_branch="main",
@@ -22,6 +26,7 @@ def _data(notes: list[str] | None = None, workflows: list[str] | None = None) ->
         stack_specific_rules=["stack"],
         notes=notes if notes is not None else ["note"],
         collected_at_utc="2026-05-22T00:00:00+00:00",
+        project_mode=project_mode,
     )
 
 
@@ -47,6 +52,18 @@ def test_markdown_and_creation_template_variants() -> None:
     creation = guide_me.to_creation_template(with_notes)
     assert "# Blueprint Used on Creation" in creation
     assert "Copy runbook from official AWB" in creation
+
+
+def test_markdown_and_creation_template_existing_mode() -> None:
+    data = _data(workflows=["document"], project_mode="existing")
+
+    md = guide_me.to_markdown(data)
+    assert "- projectMode: existing" in md
+
+    creation = guide_me.to_creation_template(data)
+    assert "# Blueprint Applied to Existing Project" in creation
+    assert "Project mode: `existing`" in creation
+    assert "existing project repository" in creation
 
 
 def test_write_outputs_creates_expected_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -77,6 +94,10 @@ def test_default_target_project_dir_uses_fixed_base(monkeypatch: pytest.MonkeyPa
     monkeypatch.setenv("AWB_TARGET_BASE_DIR", "~/Sandbox")
     target = guide_me.default_target_project_dir("proj-x")
     assert target.endswith("/Documents/GitHub/proj-x")
+
+
+def test_default_existing_project_dir_uses_cwd() -> None:
+    assert guide_me.default_existing_project_dir() == str(Path.cwd())
 
 
 def test_ensure_official_awb_dir_exists_reports_missing(
@@ -157,6 +178,7 @@ def test_run_happy_path_without_copy(monkeypatch: pytest.MonkeyPatch, tmp_path: 
     monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
     monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
     monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
+    monkeypatch.setattr(guide_me, "prompt_project_mode", lambda: "new")
 
     prompt_values = iter(["Bad Slug", "good-slug", "main", "AGENTS.md"])
     monkeypatch.setattr(guide_me, "prompt", lambda *_a, **_k: next(prompt_values))
@@ -194,6 +216,7 @@ def test_run_copy_bundle_pass_and_fail(monkeypatch: pytest.MonkeyPatch, tmp_path
     monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
     monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
     monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
+    monkeypatch.setattr(guide_me, "prompt_project_mode", lambda: "new")
 
     prompt_values = iter(["proj-y", "main", "AGENTS.md", str(tmp_path / "target")])
     monkeypatch.setattr(guide_me, "prompt", lambda *_a, **_k: next(prompt_values))
@@ -237,10 +260,75 @@ def test_run_copy_bundle_pass_and_fail(monkeypatch: pytest.MonkeyPatch, tmp_path
     assert guide_me.run() == 0
 
 
+def test_run_existing_project_mode_uses_cwd_default_and_requires_existing_dir(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
+    monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
+    monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
+    monkeypatch.setattr(guide_me, "prompt_project_mode", lambda: "existing")
+
+    prompt_values = iter(["proj-y", "main", "AGENTS.md"])
+    monkeypatch.setattr(guide_me, "prompt", lambda *_a, **_k: next(prompt_values))
+    monkeypatch.setattr(guide_me, "prompt_csv_list", lambda *_a, **_k: ["document"])
+
+    multiline_values = iter([["Python"], ["notes"]])
+    monkeypatch.setattr(guide_me, "prompt_multiline", lambda *_a, **_k: next(multiline_values))
+
+    # Decline the copy step so we only exercise the mode-aware messaging/defaults.
+    yes_no_values = iter([True, True, False])
+    monkeypatch.setattr(guide_me, "prompt_yes_no", lambda *_a, **_k: next(yes_no_values))
+
+    out_json = tmp_path / "in3.json"
+    out_md = tmp_path / "in3.md"
+    out_creation = tmp_path / "blue_print_used_on_creation.md"
+    out_json.write_text("{}", encoding="utf-8")
+    out_md.write_text("# md", encoding="utf-8")
+    out_creation.write_text("# creation", encoding="utf-8")
+    monkeypatch.setattr(guide_me, "write_outputs", lambda _data: (out_json, out_md, out_creation))
+
+    assert guide_me.run() == 0
+
+
+def test_run_existing_project_mode_copy_requires_existing_dir(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
+    monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
+    monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
+    monkeypatch.setattr(guide_me, "prompt_project_mode", lambda: "existing")
+
+    missing_target = tmp_path / "not-created-yet"
+    prompt_values = iter(["proj-y", "main", "AGENTS.md", str(missing_target)])
+    monkeypatch.setattr(guide_me, "prompt", lambda *_a, **_k: next(prompt_values))
+    monkeypatch.setattr(guide_me, "prompt_csv_list", lambda *_a, **_k: ["document"])
+
+    multiline_values = iter([["Python"], ["notes"]])
+    monkeypatch.setattr(guide_me, "prompt_multiline", lambda *_a, **_k: next(multiline_values))
+
+    yes_no_values = iter([True, True, True, True])
+    monkeypatch.setattr(guide_me, "prompt_yes_no", lambda *_a, **_k: next(yes_no_values))
+
+    out_json = tmp_path / "in4.json"
+    out_md = tmp_path / "in4.md"
+    out_creation = tmp_path / "blue_print_used_on_creation.md"
+    out_json.write_text("{}", encoding="utf-8")
+    out_md.write_text("# md", encoding="utf-8")
+    out_creation.write_text("# creation", encoding="utf-8")
+    monkeypatch.setattr(guide_me, "write_outputs", lambda _data: (out_json, out_md, out_creation))
+
+    guide_dir = tmp_path / "guide"
+    guide_dir.mkdir()
+    monkeypatch.setattr(guide_me, "__file__", str(guide_dir / "python3" / "guide_me.py"))
+
+    assert guide_me.run() == 1
+
+
 def test_run_copy_bundle_invalid_target_dir(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
     monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
     monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
+    monkeypatch.setattr(guide_me, "prompt_project_mode", lambda: "new")
 
     prompt_values = iter(["proj-y", "main", "AGENTS.md", str(tmp_path / "guide" / "loto")])
     monkeypatch.setattr(guide_me, "prompt", lambda *_a, **_k: next(prompt_values))
@@ -273,6 +361,7 @@ def test_run_copy_bundle_user_cancels_after_resolution(
     monkeypatch.setattr(guide_me, "ensure_official_awb_dir_exists", lambda: True)
     monkeypatch.setattr(guide_me, "run_pre_bootstrap_audit", lambda: True)
     monkeypatch.setattr(guide_me, "print_input_guidance", lambda: None)
+    monkeypatch.setattr(guide_me, "prompt_project_mode", lambda: "new")
 
     prompt_values = iter(["proj-y", "main", "AGENTS.md", str(tmp_path / "target")])
     monkeypatch.setattr(guide_me, "prompt", lambda *_a, **_k: next(prompt_values))
