@@ -10,6 +10,9 @@ from typing import List
 
 DEFAULT_WORKFLOWS = ["document", "review", "changelog"]
 GENERATED_BLUEPRINTS_DIR = "generated_blueprints"
+PROJECT_MODE_NEW = "new"
+PROJECT_MODE_EXISTING = "existing"
+PROJECT_MODES = {PROJECT_MODE_NEW, PROJECT_MODE_EXISTING}
 DOC_CHAIN_WORKFLOWS = {"document", "review", "changelog"}
 MCP_SYNC_WORKFLOWS = {"mcp-linear-planner", "mcp-linear-sync"}
 KNOWN_WORKFLOWS = {
@@ -57,6 +60,7 @@ class BlueprintInputs:
     stack_specific_rules: List[str]
     notes: List[str]
     collected_at_utc: str
+    project_mode: str = PROJECT_MODE_NEW
 
 
 def prompt(text: str, default: str | None = None) -> str:
@@ -65,6 +69,18 @@ def prompt(text: str, default: str | None = None) -> str:
     if raw:
         return raw
     return default or ""
+
+
+def prompt_project_mode(default_mode: str = PROJECT_MODE_NEW) -> str:
+    print("Project mode:")
+    print("  1) new - bootstrap a brand new project repository")
+    print("  2) existing - apply this guide's docs/workflow files to an existing project")
+    raw = prompt("Select project mode (new/existing)", default_mode).strip().lower()
+    if raw in {"1", PROJECT_MODE_NEW}:
+        return PROJECT_MODE_NEW
+    if raw in {"2", PROJECT_MODE_EXISTING}:
+        return PROJECT_MODE_EXISTING
+    return default_mode
 
 
 def prompt_yes_no(text: str, default_yes: bool = True) -> bool:
@@ -149,6 +165,15 @@ def validate_target_dir(guide_dir: Path, target_dir: Path) -> None:
         )
 
 
+def validate_existing_target_dir(target_dir: Path) -> None:
+    if not target_dir.is_dir():
+        raise ValueError(
+            "Existing project mode requires the target directory to already exist: "
+            f"{target_dir}. Create or open the existing project repository first, "
+            "then rerun this guide."
+        )
+
+
 def copy_file_if_missing(
     src: Path, dst: Path, copied: List[str], skipped: List[str], warnings: List[str]
 ) -> None:
@@ -197,7 +222,10 @@ def copy_bootstrap_assets(
     skipped: List[str] = []
     warnings: List[str] = []
 
-    target_dir.mkdir(parents=True, exist_ok=True)
+    if data.project_mode == PROJECT_MODE_EXISTING:
+        validate_existing_target_dir(target_dir)
+    else:
+        target_dir.mkdir(parents=True, exist_ok=True)
     inputs_dir = target_dir / "bootstrap" / "inputs"
     inputs_dir.mkdir(parents=True, exist_ok=True)
 

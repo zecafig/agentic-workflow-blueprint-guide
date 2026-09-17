@@ -21,11 +21,13 @@ from helpers import (
     DEFAULT_WORKFLOWS,
     GENERATED_BLUEPRINTS_DIR,
     KNOWN_WORKFLOWS,
+    PROJECT_MODE_EXISTING,
     copy_bootstrap_assets,
     extract_audit_findings,
     prompt,
     prompt_csv_list,
     prompt_multiline,
+    prompt_project_mode,
     prompt_yes_no,
     recommended_runbooks,
     resolve_official_awb_dir,
@@ -38,6 +40,7 @@ def print_input_guidance() -> None:
     print("Input guidance (what you are about to provide):")
     print("- Official AWB: agentic-workflow-blueprint")
     print("- Official AWB repo: https://github.com/devton/agentic-workflow-blueprint")
+    print("- projectMode: new (bootstrap a new repo) or existing (retrofit docs into a current repo)")
     print("- projectSlug: short repo identifier in kebab-case (example: billing-api)")
     print("- baseBranch: integration branch name (example: main or develop)")
     print("- existingRootDoc: root instruction file used by the project (example: AGENTS.md)")
@@ -65,6 +68,7 @@ def to_markdown(data: BlueprintInputs) -> str:
             f"- Collected at (UTC): {data.collected_at_utc}",
             "",
             "## Required Inputs",
+            f"- projectMode: {data.project_mode}",
             f"- projectSlug: {data.project_slug}",
             f"- baseBranch: {data.base_branch}",
             f"- existingRootDoc: {data.existing_root_doc}",
@@ -102,10 +106,15 @@ def to_markdown(data: BlueprintInputs) -> str:
 def to_creation_template(data: BlueprintInputs) -> str:
     workflow_list = ", ".join(data.workflows_wanted)
     runbooks = recommended_runbooks(data.workflows_wanted)
+    is_existing = data.project_mode == PROJECT_MODE_EXISTING
+    title = "# Blueprint Applied to Existing Project" if is_existing else "# Blueprint Used on Creation"
+    target_repo_label = "existing project repository" if is_existing else "target project repository"
 
     return "\n".join(
         [
-            "# Blueprint Used on Creation",
+            title,
+            "",
+            f"Project mode: `{data.project_mode}`",
             "",
             "Official AWB source: `https://github.com/devton/agentic-workflow-blueprint`",
             "",
@@ -114,7 +123,7 @@ def to_creation_template(data: BlueprintInputs) -> str:
             "- Before start, update `agentic-workflow-blueprint` repo.",
             "- Run `make pre-bootstrap-audit` in this guide repository and proceed only if it passes.",
             "- Review official blueprint files in `agentic-workflow-blueprint`.",
-            "- Open the target project repository in VS Code.",
+            f"- Open the {target_repo_label} in VS Code.",
             "- Ask the LLM to review the current blueprint changes and this guidance repo.",
             "",
             "## Initial Input Snapshot",
@@ -145,7 +154,7 @@ def to_creation_template(data: BlueprintInputs) -> str:
             "",
             "## Migration Checklist to New Repo",
             "",
-            "- Create/open the target project repository directory.",
+            f"- Create/open the {target_repo_label} directory.",
             "- Move generated input snapshot files (`blueprint_inputs_*.json` and `blueprint_inputs_*.md`) into `bootstrap/inputs/` in the target repo.",
             "- Keep this file as `blue_print_used_on_creation.md` at the target repo root.",
             "- Copy files created during the initial inputs phase.",
@@ -188,6 +197,10 @@ def write_outputs(data: BlueprintInputs) -> tuple[Path, Path, Path]:
 
 def default_target_project_dir(project_slug: str) -> str:
     return str((Path("~/Documents/GitHub").expanduser() / project_slug).resolve())
+
+
+def default_existing_project_dir() -> str:
+    return str(Path.cwd())
 
 
 def run_pre_bootstrap_audit() -> bool:
@@ -256,6 +269,8 @@ def run() -> int:
     print()
     print_input_guidance()
 
+    project_mode = prompt_project_mode()
+
     while True:
         try:
             project_slug = validate_slug(
@@ -316,6 +331,7 @@ def run() -> int:
         stack_specific_rules=stack_specific_rules,
         notes=notes,
         collected_at_utc=collected_at_utc,
+        project_mode=project_mode,
     )
 
     json_path, md_path, creation_template_path = write_outputs(data)
@@ -328,6 +344,7 @@ def run() -> int:
     print("- (all files are written under generated_blueprints/)")
     print()
     print("What to do now (recommended):")
+    print(f"- Project mode: {data.project_mode}")
     print(f"1. Create/open target repo directory: ../{data.project_slug}")
     print("2. In target repo, create: bootstrap/inputs/")
     print(f"3. Move snapshots to target repo: {json_path.name}, {md_path.name}")
@@ -343,11 +360,17 @@ def run() -> int:
     print("6. Continue implementation only in the target repository")
 
     print()
-    if prompt_yes_no(
-        "I can copy everything needed from this guide and from official AWB to a new project directory. Do it now",
-        default_yes=False,
-    ):
-        default_target = default_target_project_dir(data.project_slug)
+    copy_prompt = (
+        "I can copy everything needed from this guide and from official AWB into this existing project. Do it now"
+        if data.project_mode == PROJECT_MODE_EXISTING
+        else "I can copy everything needed from this guide and from official AWB to a new project directory. Do it now"
+    )
+    if prompt_yes_no(copy_prompt, default_yes=False):
+        default_target = (
+            default_existing_project_dir()
+            if data.project_mode == PROJECT_MODE_EXISTING
+            else default_target_project_dir(data.project_slug)
+        )
         target_dir_text = prompt("Target project directory", default_target)
         resolved_target = str(Path(target_dir_text).expanduser().resolve())
         print(f"Resolved target directory: {resolved_target}")

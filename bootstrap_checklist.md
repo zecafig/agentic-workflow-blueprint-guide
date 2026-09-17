@@ -18,6 +18,7 @@ Use this checklist at the start of every new project to reduce setup drift.
 ## B. Input Capture
 
 - [ ] I ran the Python 3 entrypoint (`python3 python3/guide_me.py`).
+- [ ] I confirmed the correct project mode (`new` or `existing`) for this run.
 - [ ] I reviewed generated input outputs and reran the Python 3 entrypoint to refine answers until inputs were correct.
 - [ ] I confirmed the latest generated inputs are the source that will feed AWB scaffolding decisions.
 - [ ] I reviewed and validated core constraints.

@@ -25,6 +25,8 @@ pip install -r requirements.txt
 python3 guide_me.py
 ```
 
+The first prompt selects the project mode: `new` (bootstrap a brand new repository) or `existing` (apply this guide's docs/workflow files to a repository that already exists). Existing-project mode never overwrites files already present in the target repository and requires the target directory to already exist before copying.
+
 ## Tests
 
 ```bash

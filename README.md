@@ -44,6 +44,7 @@ Run these commands from the repository root.
 - This repository supports only Python 3 bootstrap workflows.
 - Command entrypoint: `python3 python3/guide_me.py`.
 - No additional language bootstrap layers are planned in this repository.
+- `python3 python3/guide_me.py` supports two project modes: `new` (bootstrap a brand new repository) and `existing` (retrofit AWB docs/workflow files into a repository that already exists). Existing-project mode never overwrites files already present in the target repository and requires the target directory to already exist.
 
 ## Responsibility Model
 
@@ -56,7 +57,7 @@ Run these commands from the repository root.
 - workflows: `document`, `review`, `changelog`, `linear`, `mcp-linear-planner`, `mcp-linear-sync`, `plan-to-blueprint`
 - skills: review the official AWB skills catalog and capture the skill IDs or directories that match the project scope and selected workflows
 - runbooks: `document-review-changelog.md`, `linear-mcp.md`, `mcp-linear-sync.md`, `plan-to-blueprint.md`
-- additional workflows observed upstream: `analyzing-kubernetes-audit-logs`, `brainstorming`, `c4-architecture`, `changelog-generator`, `html-manual`, `iac`, `implementing-devsecops-security-scanning`, `implementing-network-policies-for-kubernetes`, `implementing-pod-security-admission-controller`, `implementing-rbac-hardening-for-kubernetes`, `implementing-syslog-centralization-with-rsyslog`, `infra-operations`, `network-engineering`, `os-platform`, `performing-container-image-hardening`, `performing-container-security-scanning-with-trivy`, `performing-kubernetes-cis-benchmark-with-kube-bench`, `performing-vulnerability-scanning-with-nessus`, `plan-writing`, `radioactive`, `remediating-s3-bucket-misconfiguration`, `remotion-video-motion`, `scanning-containers-with-trivy-in-cicd`, `scanning-docker-images-with-trivy`, `scanning-kubernetes-manifests-with-kubesec`, `securing-aws-iam-permissions`, `securing-container-registry-images`, `securing-github-actions-workflows`, `securing-kubernetes-on-cloud`, `thermo-fix`, `thermo-nuclear-code-quality-review`, `triaging-vulnerabilities-with-ssvc-framework`, `ui-ux-pro-max`
+- additional workflows observed upstream: `analyzing-kubernetes-audit-logs`, `brainstorming`, `c4-architecture`, `changelog-generator`, `embed-aihero-radioactive`, `html-manual`, `iac`, `implementing-devsecops-security-scanning`, `implementing-network-policies-for-kubernetes`, `implementing-pod-security-admission-controller`, `implementing-rbac-hardening-for-kubernetes`, `implementing-syslog-centralization-with-rsyslog`, `infra-operations`, `network-engineering`, `os-platform`, `performing-container-image-hardening`, `performing-container-security-scanning-with-trivy`, `performing-kubernetes-cis-benchmark-with-kube-bench`, `performing-vulnerability-scanning-with-nessus`, `plan-writing`, `radioactive`, `remediating-s3-bucket-misconfiguration`, `remotion-video-motion`, `scanning-containers-with-trivy-in-cicd`, `scanning-docker-images-with-trivy`, `scanning-kubernetes-manifests-with-kubesec`, `securing-aws-iam-permissions`, `securing-container-registry-images`, `securing-github-actions-workflows`, `securing-kubernetes-on-cloud`, `thermo-fix`, `thermo-nuclear-code-quality-review`, `triaging-vulnerabilities-with-ssvc-framework`, `ui-ux-pro-max`
 - additional runbooks observed upstream: `iac-delivery.md`, `network-change.md`, `os-hardening-patching.md`
 
 If upstream names/contracts change, update this guide repo before the next bootstrap run.
@@ -69,7 +70,7 @@ Any agent must run the full protocol in `agentic_workflow_blueprint_guidance.md`
 
 1. Update and review the official blueprint repository as source of truth.
 2. Read `python3/README.md` before running anything.
-3. Run the entrypoint: `python3 python3/guide_me.py`.
+3. Run the entrypoint: `python3 python3/guide_me.py` and choose the project mode (`new` for a brand new repository, `existing` to retrofit AWB docs into a repository you already have).
 4. If the report shows `[FAIL]`/`[WARN]`, stop, fix those items, and rerun `python3 python3/guide_me.py` until the audit passes.
 5. Open the target project repository in VS Code.
 6. Review the generated input outputs from `python3/guide_me.py` and refine your answers by rerunning `python3 python3/guide_me.py` until the inputs are correct.

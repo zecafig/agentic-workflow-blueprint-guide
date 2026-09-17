@@ -10,7 +10,7 @@ import helpers
 from helpers import BlueprintInputs
 
 
-def _sample_inputs(workflows: list[str] | None = None) -> BlueprintInputs:
+def _sample_inputs(workflows: list[str] | None = None, project_mode: str = "new") -> BlueprintInputs:
     return BlueprintInputs(
         project_slug="sample-project",
         base_branch="main",
@@ -21,6 +21,7 @@ def _sample_inputs(workflows: list[str] | None = None) -> BlueprintInputs:
         stack_specific_rules=["stack"],
         notes=["note"],
         collected_at_utc="2026-05-22T00:00:00+00:00",
+        project_mode=project_mode,
     )
 
 
@@ -45,6 +46,25 @@ def test_prompt_yes_no_variants(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr("builtins.input", lambda _: "n")
     assert helpers.prompt_yes_no("Q", default_yes=True) is False
+
+
+def test_prompt_project_mode_variants(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("builtins.input", lambda _: "")
+    assert helpers.prompt_project_mode() == helpers.PROJECT_MODE_NEW
+
+    monkeypatch.setattr("builtins.input", lambda _: "2")
+    assert helpers.prompt_project_mode() == helpers.PROJECT_MODE_EXISTING
+
+    monkeypatch.setattr("builtins.input", lambda _: "existing")
+    assert helpers.prompt_project_mode() == helpers.PROJECT_MODE_EXISTING
+
+    monkeypatch.setattr("builtins.input", lambda _: "1")
+    assert helpers.prompt_project_mode() == helpers.PROJECT_MODE_NEW
+
+    monkeypatch.setattr("builtins.input", lambda _: "bogus")
+    assert helpers.prompt_project_mode(default_mode=helpers.PROJECT_MODE_EXISTING) == (
+        helpers.PROJECT_MODE_EXISTING
+    )
 
 
 def test_prompt_csv_list(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -106,6 +126,16 @@ def test_validate_target_dir_accepts_external_path(tmp_path: Path) -> None:
     guide_dir.mkdir(parents=True)
 
     helpers.validate_target_dir(guide_dir=guide_dir, target_dir=target_dir)
+
+
+def test_validate_existing_target_dir(tmp_path: Path) -> None:
+    missing_dir = tmp_path / "missing"
+    with pytest.raises(ValueError):
+        helpers.validate_existing_target_dir(missing_dir)
+
+    existing_dir = tmp_path / "existing"
+    existing_dir.mkdir()
+    helpers.validate_existing_target_dir(existing_dir)
 
 
 def test_copy_file_if_missing_and_copy_tree_if_missing(tmp_path: Path) -> None:
@@ -246,6 +276,54 @@ def test_copy_bootstrap_assets_success_and_failure(tmp_path: Path) -> None:
     assert skipped2
     assert copied2
     assert any("Bundle verification failed" in item for item in warnings2)
+
+
+def test_copy_bootstrap_assets_existing_mode_requires_pre_existing_dir(tmp_path: Path) -> None:
+    data = _sample_inputs(["document"], project_mode=helpers.PROJECT_MODE_EXISTING)
+    guide_dir = tmp_path / "guide"
+    official = tmp_path / "agentic-workflow-blueprint"
+
+    guide_dir.mkdir(parents=True)
+    (guide_dir / "bootstrap_checklist.md").write_text("check", encoding="utf-8")
+    (guide_dir / "agentic_workflow_blueprint_guidance.md").write_text("guide", encoding="utf-8")
+
+    (official / "workflows" / "document").mkdir(parents=True)
+    (official / "workflows" / "document" / "README.md").write_text("wf", encoding="utf-8")
+    (official / "runbooks").mkdir(parents=True)
+    (official / "runbooks" / "document-review-changelog.md").write_text("rb", encoding="utf-8")
+    (official / "AGENTS.md").write_text("agents", encoding="utf-8")
+
+    json_path = tmp_path / "inputs.json"
+    md_path = tmp_path / "inputs.md"
+    creation_path = tmp_path / "blue_print_used_on_creation.md"
+    json_path.write_text("{}", encoding="utf-8")
+    md_path.write_text("# md", encoding="utf-8")
+    creation_path.write_text("# creation", encoding="utf-8")
+
+    missing_target = tmp_path / "existing-project-not-created"
+    with pytest.raises(ValueError):
+        helpers.copy_bootstrap_assets(
+            guide_dir=guide_dir,
+            data=data,
+            json_path=json_path,
+            md_path=md_path,
+            creation_template_path=creation_path,
+            target_dir_text=str(missing_target),
+        )
+
+    existing_target = tmp_path / "existing-project"
+    existing_target.mkdir()
+    copied, skipped, warnings = helpers.copy_bootstrap_assets(
+        guide_dir=guide_dir,
+        data=data,
+        json_path=json_path,
+        md_path=md_path,
+        creation_template_path=creation_path,
+        target_dir_text=str(existing_target),
+    )
+    assert not skipped
+    assert not warnings
+    assert "BUNDLE_VERIFICATION:PASS" in copied
 
 
 def test_copy_bootstrap_assets_rejects_target_inside_guide(tmp_path: Path) -> None:
