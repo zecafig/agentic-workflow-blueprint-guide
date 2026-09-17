@@ -26,10 +26,12 @@ KNOWN_WORKFLOWS = {
 }
 
 ROOT_DOC_CANDIDATES = ("AGENTS.md", "CLAUDE.md")
+CONTEXT_SCAN_MAX_DEPTH = 4
 CONTEXT_SCAN_IGNORED_NAMES = {
     ".git",
     ".venv",
     "venv",
+    "env",
     "node_modules",
     "__pycache__",
     ".mypy_cache",
@@ -37,6 +39,16 @@ CONTEXT_SCAN_IGNORED_NAMES = {
     ".ruff_cache",
     "dist",
     "build",
+    "target",
+    "vendor",
+    "site-packages",
+    ".tox",
+    "htmlcov",
+    ".idea",
+    ".vscode",
+    ".next",
+    ".nuxt",
+    ".cache",
 }
 CONTEXT_SCAN_MANIFEST_NAMES = {
     "requirements.txt",
@@ -208,31 +220,43 @@ def has_existing_root_doc(target_dir: Path, existing_root_doc: str) -> bool:
     return any((target_dir / name).exists() for name in candidates)
 
 
-def discover_existing_context(target_dir: Path) -> List[str]:
+def discover_existing_context(
+    target_dir: Path, max_depth: int = CONTEXT_SCAN_MAX_DEPTH
+) -> List[str]:
     if not target_dir.is_dir():
         return []
 
     found: List[str] = []
-    for entry in sorted(target_dir.iterdir(), key=lambda p: p.name.lower()):
+    _scan_context_tree(target_dir, target_dir, max_depth, found)
+    return found
+
+
+def _is_context_scan_dir_ignored(name: str) -> bool:
+    if name in CONTEXT_SCAN_IGNORED_NAMES or name.endswith(".egg-info"):
+        return True
+    return name.startswith(".") and name != ".github"
+
+
+def _scan_context_tree(root: Path, current: Path, depth_remaining: int, found: List[str]) -> None:
+    if depth_remaining <= 0:
+        return
+
+    for entry in sorted(current.iterdir(), key=lambda p: p.name.lower()):
         name = entry.name
-        if name in CONTEXT_SCAN_IGNORED_NAMES:
+        if _is_context_scan_dir_ignored(name):
             continue
+
+        relative = entry.relative_to(root).as_posix()
 
         if entry.is_file():
             if entry.suffix.lower() in {".md", ".rst"} or name in CONTEXT_SCAN_MANIFEST_NAMES:
-                found.append(name)
+                found.append(relative)
             continue
 
-        is_structure_dir = name in CONTEXT_SCAN_STRUCTURE_DIR_NAMES or "doc" in name.lower()
-        if not is_structure_dir:
-            continue
+        if name in CONTEXT_SCAN_STRUCTURE_DIR_NAMES or "doc" in name.lower():
+            found.append(f"{relative}/")
 
-        found.append(f"{name}/")
-        for child in sorted(entry.iterdir(), key=lambda p: p.name.lower()):
-            if child.is_file():
-                found.append(f"{name}/{child.name}")
-
-    return found
+        _scan_context_tree(root, entry, depth_remaining - 1, found)
 
 
 def render_project_context_md(discovered: List[str]) -> str:
@@ -261,6 +285,16 @@ def write_text_file_if_missing(
 
     dst.write_text(content, encoding="utf-8")
     copied.append(str(dst))
+
+
+def append_project_context_link(agents_md_path: Path) -> None:
+    note = (
+        "\n## Project Context Index\n\n"
+        "This is an existing project. Read `bootstrap/PROJECT_CONTEXT.md` for an index "
+        "of context that already existed here before AWB docs were added.\n"
+    )
+    with agents_md_path.open("a", encoding="utf-8") as handle:
+        handle.write(note)
 
 
 def copy_file_if_missing(
@@ -360,13 +394,16 @@ def copy_bootstrap_assets(
             f"(matched one of: {data.existing_root_doc}, {', '.join(ROOT_DOC_CANDIDATES)})."
         )
     else:
+        agents_md_path = target_dir / "AGENTS.md"
         copy_file_if_missing(
             official_awb_dir / "AGENTS.md",
-            target_dir / "AGENTS.md",
+            agents_md_path,
             copied,
             skipped,
             warnings,
         )
+        if data.project_mode == PROJECT_MODE_EXISTING and str(agents_md_path) in copied:
+            append_project_context_link(agents_md_path)
 
     if data.project_mode == PROJECT_MODE_EXISTING:
         write_text_file_if_missing(

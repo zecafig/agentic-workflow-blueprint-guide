@@ -181,6 +181,37 @@ def test_discover_existing_context(tmp_path: Path) -> None:
     assert not any(item.startswith("assets") for item in discovered)
 
 
+def test_discover_existing_context_respects_depth_and_ignored_dirs(tmp_path: Path) -> None:
+    target_dir = tmp_path / "target"
+    target_dir.mkdir()
+
+    # Ignored library/build dirs must never be descended into.
+    for ignored_name in ["node_modules", "vendor", "target", "site-packages", "some.egg-info"]:
+        ignored_dir = target_dir / ignored_name
+        ignored_dir.mkdir()
+        (ignored_dir / "README.md").write_text("noise", encoding="utf-8")
+
+    # Nested docs within depth (root -> level1 -> level2 -> level3 = depth 4).
+    level1 = target_dir / "docs"
+    level1.mkdir()
+    level2 = level1 / "level2"
+    level2.mkdir()
+    level3 = level2 / "level3"
+    level3.mkdir()
+    (level3 / "deep.md").write_text("deep", encoding="utf-8")
+
+    # One level beyond max depth must not be discovered.
+    level4 = level3 / "level4"
+    level4.mkdir()
+    (level4 / "too_deep.md").write_text("too deep", encoding="utf-8")
+
+    discovered = helpers.discover_existing_context(target_dir)
+    assert "docs/level2/level3/deep.md" in discovered
+    assert not any("too_deep.md" in item for item in discovered)
+    for ignored_name in ["node_modules", "vendor", "target", "site-packages", "some.egg-info"]:
+        assert not any(item.startswith(ignored_name) for item in discovered)
+
+
 def test_render_project_context_md_empty_and_populated() -> None:
     empty_md = helpers.render_project_context_md([])
     assert "(none found)" in empty_md
