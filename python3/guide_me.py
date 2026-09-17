@@ -162,6 +162,14 @@ def to_creation_template(data: BlueprintInputs) -> str:
             f"- Copy selected official workflow folders: {workflow_list}.",
             *[f"- Copy runbook from official AWB: {name}." for name in runbooks],
             "- Copy `AGENTS.md` from official AWB as a starting point and adapt it for the target project.",
+            *(
+                [
+                    "- Read `bootstrap/PROJECT_CONTEXT.md` for an index of context that already existed in "
+                    "this project before AWB docs were added.",
+                ]
+                if is_existing
+                else []
+            ),
             "- Ensure orchestration files are present in the new repo.",
             "- Add project tooling files as needed by the chosen stack (post-handoff).",
             "- Keep this file in the new repo root for traceability.",
@@ -358,6 +366,11 @@ def run() -> int:
     else:
         print("   - runbooks: choose based on selected workflows")
     print("6. Continue implementation only in the target repository")
+    if data.project_mode == PROJECT_MODE_EXISTING:
+        print(
+            "7. Read bootstrap/PROJECT_CONTEXT.md for an index of context that already existed "
+            "in this project."
+        )
 
     print()
     copy_prompt = (

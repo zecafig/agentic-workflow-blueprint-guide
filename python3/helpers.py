@@ -25,6 +25,35 @@ KNOWN_WORKFLOWS = {
     "plan-to-blueprint",
 }
 
+ROOT_DOC_CANDIDATES = ("AGENTS.md", "CLAUDE.md")
+CONTEXT_SCAN_IGNORED_NAMES = {
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    "dist",
+    "build",
+}
+CONTEXT_SCAN_MANIFEST_NAMES = {
+    "requirements.txt",
+    "requirements-dev.txt",
+    "pyproject.toml",
+    "package.json",
+    "Cargo.toml",
+    "go.mod",
+    "Gemfile",
+    "pom.xml",
+    "build.gradle",
+    "composer.json",
+    "setup.py",
+    "setup.cfg",
+}
+CONTEXT_SCAN_STRUCTURE_DIR_NAMES = {"docs", "documentation", "test", "tests", ".github"}
+
 DEFAULT_CORE_RULES = [
     "Root doc remains minimal and links to canonical skill/workflow files",
     "Workflow IDs and file paths stay consistent across references",
@@ -174,6 +203,66 @@ def validate_existing_target_dir(target_dir: Path) -> None:
         )
 
 
+def has_existing_root_doc(target_dir: Path, existing_root_doc: str) -> bool:
+    candidates = {existing_root_doc, *ROOT_DOC_CANDIDATES}
+    return any((target_dir / name).exists() for name in candidates)
+
+
+def discover_existing_context(target_dir: Path) -> List[str]:
+    if not target_dir.is_dir():
+        return []
+
+    found: List[str] = []
+    for entry in sorted(target_dir.iterdir(), key=lambda p: p.name.lower()):
+        name = entry.name
+        if name in CONTEXT_SCAN_IGNORED_NAMES:
+            continue
+
+        if entry.is_file():
+            if entry.suffix.lower() in {".md", ".rst"} or name in CONTEXT_SCAN_MANIFEST_NAMES:
+                found.append(name)
+            continue
+
+        is_structure_dir = name in CONTEXT_SCAN_STRUCTURE_DIR_NAMES or "doc" in name.lower()
+        if not is_structure_dir:
+            continue
+
+        found.append(f"{name}/")
+        for child in sorted(entry.iterdir(), key=lambda p: p.name.lower()):
+            if child.is_file():
+                found.append(f"{name}/{child.name}")
+
+    return found
+
+
+def render_project_context_md(discovered: List[str]) -> str:
+    lines = [
+        "# Project Context Index",
+        "",
+        "Files and directories already present in this project before AWB docs were added.",
+        "Read these first before relying on generic AWB scaffolding for project specifics.",
+        "",
+    ]
+    if discovered:
+        lines.extend(f"- {item}" for item in discovered)
+    else:
+        lines.append("- (none found)")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def write_text_file_if_missing(
+    dst: Path, content: str, copied: List[str], skipped: List[str], warnings: List[str]
+) -> None:
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if dst.exists():
+        skipped.append(str(dst))
+        return
+
+    dst.write_text(content, encoding="utf-8")
+    copied.append(str(dst))
+
+
 def copy_file_if_missing(
     src: Path, dst: Path, copied: List[str], skipped: List[str], warnings: List[str]
 ) -> None:
@@ -226,6 +315,12 @@ def copy_bootstrap_assets(
         validate_existing_target_dir(target_dir)
     else:
         target_dir.mkdir(parents=True, exist_ok=True)
+
+    # Snapshot pre-existing context before any AWB files are written into target_dir.
+    discovered_context = (
+        discover_existing_context(target_dir) if data.project_mode == PROJECT_MODE_EXISTING else []
+    )
+
     inputs_dir = target_dir / "bootstrap" / "inputs"
     inputs_dir.mkdir(parents=True, exist_ok=True)
 
@@ -256,13 +351,31 @@ def copy_bootstrap_assets(
         warnings,
     )
 
-    copy_file_if_missing(
-        official_awb_dir / "AGENTS.md",
-        target_dir / "AGENTS.md",
-        copied,
-        skipped,
-        warnings,
+    existing_root_doc_present = data.project_mode == PROJECT_MODE_EXISTING and has_existing_root_doc(
+        target_dir, data.existing_root_doc
     )
+    if existing_root_doc_present:
+        skipped.append(
+            "AGENTS.md not copied: existing root doc already present in target project "
+            f"(matched one of: {data.existing_root_doc}, {', '.join(ROOT_DOC_CANDIDATES)})."
+        )
+    else:
+        copy_file_if_missing(
+            official_awb_dir / "AGENTS.md",
+            target_dir / "AGENTS.md",
+            copied,
+            skipped,
+            warnings,
+        )
+
+    if data.project_mode == PROJECT_MODE_EXISTING:
+        write_text_file_if_missing(
+            target_dir / "bootstrap" / "PROJECT_CONTEXT.md",
+            render_project_context_md(discovered_context),
+            copied,
+            skipped,
+            warnings,
+        )
 
     for workflow in data.workflows_wanted:
         copy_tree_if_missing(
@@ -339,13 +452,21 @@ def expected_bundle_paths(
     input_md_name: str,
 ) -> List[Path]:
     paths = [
-        target_dir / "AGENTS.md",
         target_dir / "blue_print_used_on_creation.md",
         target_dir / "bootstrap_checklist.md",
         target_dir / "agentic_workflow_blueprint_guidance.md",
         target_dir / "bootstrap" / "inputs" / input_json_name,
         target_dir / "bootstrap" / "inputs" / input_md_name,
     ]
+
+    existing_root_doc_present = data.project_mode == PROJECT_MODE_EXISTING and has_existing_root_doc(
+        target_dir, data.existing_root_doc
+    )
+    if not existing_root_doc_present:
+        paths.append(target_dir / "AGENTS.md")
+
+    if data.project_mode == PROJECT_MODE_EXISTING:
+        paths.append(target_dir / "bootstrap" / "PROJECT_CONTEXT.md")
 
     for workflow in data.workflows_wanted:
         paths.append(target_dir / "workflows" / workflow)

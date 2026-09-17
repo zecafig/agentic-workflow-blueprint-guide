@@ -44,7 +44,7 @@ Run these commands from the repository root.
 - This repository supports only Python 3 bootstrap workflows.
 - Command entrypoint: `python3 python3/guide_me.py`.
 - No additional language bootstrap layers are planned in this repository.
-- `python3 python3/guide_me.py` supports two project modes: `new` (bootstrap a brand new repository) and `existing` (retrofit AWB docs/workflow files into a repository that already exists). Existing-project mode never overwrites files already present in the target repository and requires the target directory to already exist.
+- `python3 python3/guide_me.py` supports two project modes: `new` (bootstrap a brand new repository) and `existing` (retrofit AWB docs/workflow files into a repository that already exists). Existing-project mode never overwrites files already present in the target repository and requires the target directory to already exist. It also scans the target directory (one level deep) for existing context (README/docs/manifests) and writes `bootstrap/PROJECT_CONTEXT.md` as an index; `AGENTS.md` is only added when no root instruction file already exists there.
 
 ## Responsibility Model
 
