@@ -52,6 +52,7 @@ def test_markdown_and_creation_template_variants() -> None:
     creation = guide_me.to_creation_template(with_notes)
     assert "# Blueprint Used on Creation" in creation
     assert "Copy runbook from official AWB" in creation
+    assert "docs/tasks/task.<reference>.md" in creation
 
 
 def test_markdown_and_creation_template_existing_mode() -> None:
