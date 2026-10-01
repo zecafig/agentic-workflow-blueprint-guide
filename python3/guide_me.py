@@ -158,6 +158,7 @@ def to_creation_template(data: BlueprintInputs) -> str:
             "- Move generated input snapshot files (`blueprint_inputs_*.json` and `blueprint_inputs_*.md`) into `bootstrap/inputs/` in the target repo.",
             "- Keep this file as `blue_print_used_on_creation.md` at the target repo root.",
             "- Copy files created during the initial inputs phase.",
+            "- Copy the approved task specification from `docs/tasks/task.<reference>.md` when the selected AWB workflow produced one.",
             "- Copy the required workflow files generated or selected from the blueprint flow.",
             f"- Copy selected official workflow folders: {workflow_list}.",
             *[f"- Copy runbook from official AWB: {name}." for name in runbooks],
